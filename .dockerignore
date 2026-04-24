@@ -4,7 +4,8 @@ __pycache__
 .gitignore
 *.md
 ai_model/
-tg_bot/
+tg_bot/__pycache__
+tg_bot/.env
 flutter_frontend/.dart_tool/
 flutter_frontend/build/
 flutter_frontend/.flutter-plugins
