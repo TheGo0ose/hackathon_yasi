@@ -176,49 +176,54 @@ class _CalculatorPageState extends State<CalculatorPage> {
                 const SizedBox(height: 32),
 
                 // ── Results Grid ──
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Left: Payment + Overpayment
-                    Expanded(
-                      child: Column(
-                        children: [
-                          _buildResultCard(
-                            '${_monthlyPayment.round()} ₽',
-                            _isAnnuity ? 'ЕЖЕМЕСЯЧНЫЙ ПЛАТЁЖ' : 'МАКС. ПЛАТЁЖ (1-й мес.)',
-                            AppTheme.cream,
-                          ),
-                          const SizedBox(height: 16),
-                          _buildResultCard(
-                            '${_overpayment.round()} ₽',
-                            'ПЕРЕПЛАТА ЗА ВЕСЬ СРОК',
-                            const Color(0xFFF59E0B),
-                          ),
-                          const SizedBox(height: 16),
-                          _buildResultCard(
-                            _formatMoney(_totalPayment),
-                            'ИТОГО К ВОЗВРАТУ',
-                            AppTheme.peachLight,
-                          ),
-                        ],
-                      ),
-                    ),
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    final isNarrow = constraints.maxWidth < 550;
+                    final leftColumn = Column(
+                      children: [
+                        _buildResultCard(
+                          '${_monthlyPayment.round()} ₽',
+                          _isAnnuity ? 'ЕЖЕМЕСЯЧНЫЙ ПЛАТЁЖ' : 'МАКС. ПЛАТЁЖ (1-й мес.)',
+                          AppTheme.cream,
+                        ),
+                        const SizedBox(height: 16),
+                        _buildResultCard(
+                          '${_overpayment.round()} ₽',
+                          'ПЕРЕПЛАТА ЗА ВЕСЬ СРОК',
+                          const Color(0xFFF59E0B),
+                        ),
+                        const SizedBox(height: 16),
+                        _buildResultCard(
+                          _formatMoney(_totalPayment),
+                          'ИТОГО К ВОЗВРАТУ',
+                          AppTheme.peachLight,
+                        ),
+                      ],
+                    );
+                    final rightColumn = Column(
+                      children: [
+                        _buildDtiCard(context),
+                        const SizedBox(height: 16),
+                        _buildBreakdownCard(context, interestRatio),
+                      ],
+                    );
 
-                    const SizedBox(width: 24),
-
-                    // Right: DTI + Breakdown
-                    Expanded(
-                      child: Column(
-                        children: [
-                          // DTI Gauge
-                          _buildDtiCard(context),
-                          const SizedBox(height: 16),
-                          // Principal vs Interest breakdown
-                          _buildBreakdownCard(context, interestRatio),
-                        ],
-                      ),
-                    ),
-                  ],
+                    if (isNarrow) {
+                      return Column(children: [
+                        leftColumn,
+                        const SizedBox(height: 16),
+                        rightColumn,
+                      ]);
+                    }
+                    return Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(child: leftColumn),
+                        const SizedBox(width: 24),
+                        Expanded(child: rightColumn),
+                      ],
+                    );
+                  },
                 ),
 
                 const SizedBox(height: 32),

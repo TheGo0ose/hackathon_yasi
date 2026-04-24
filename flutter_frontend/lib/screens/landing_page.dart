@@ -85,11 +85,17 @@ class _NavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isNarrow = MediaQuery.of(context).size.width < 600;
+
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 40.0, vertical: 32.0),
+      padding: EdgeInsets.symmetric(
+        horizontal: isNarrow ? 16.0 : 40.0,
+        vertical: isNarrow ? 16.0 : 32.0,
+      ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
+          // Logo
           Row(
             children: [
               const Icon(Icons.blur_linear, color: AppTheme.cream, size: 28),
@@ -97,29 +103,104 @@ class _NavBar extends StatelessWidget {
               Text(
                 'RIZZCHECKER',
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontSize: 20,
+                  fontSize: isNarrow ? 16 : 20,
                   letterSpacing: 2.0,
                 ),
               ),
             ],
           ),
-          Row(
-            children: [
-              _NavTextRef('CREDIT CALCULATOR', onTap: () {
-                 Navigator.push(context, MaterialPageRoute(builder: (_) => const CalculatorPage()));
-              }),
-              const SizedBox(width: 24),
-              _NavTextRef('IMPORT DATA', onTap: () {
-                 Navigator.push(context, MaterialPageRoute(builder: (_) => const ImportPage()));
-              }),
-              const SizedBox(width: 24),
-              _NavTextRef('AI ADVISOR', color: AppTheme.cream, onTap: () {
-                 Navigator.push(context, MaterialPageRoute(builder: (_) => const AiChatPage()));
-              }),
-            ],
-          )
+          // Desktop: inline links | Mobile: hamburger
+          if (isNarrow)
+            IconButton(
+              icon: const Icon(Icons.menu, color: AppTheme.cream, size: 28),
+              onPressed: () => _showMobileMenu(context),
+            )
+          else
+            Row(
+              children: [
+                _NavTextRef('CREDIT CALCULATOR', onTap: () {
+                   Navigator.push(context, MaterialPageRoute(builder: (_) => const CalculatorPage()));
+                }),
+                const SizedBox(width: 24),
+                _NavTextRef('IMPORT DATA', onTap: () {
+                   Navigator.push(context, MaterialPageRoute(builder: (_) => const ImportPage()));
+                }),
+                const SizedBox(width: 24),
+                _NavTextRef('AI ADVISOR', color: AppTheme.cream, onTap: () {
+                   Navigator.push(context, MaterialPageRoute(builder: (_) => const AiChatPage()));
+                }),
+              ],
+            ),
         ],
       ),
+    );
+  }
+
+  void _showMobileMenu(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppTheme.bg2,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: 8),
+            Container(
+              width: 40, height: 4,
+              decoration: BoxDecoration(
+                color: AppTheme.textDim,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(height: 16),
+            _MobileMenuItem(
+              icon: Icons.calculate_outlined,
+              label: 'Credit Calculator',
+              onTap: () {
+                Navigator.pop(ctx);
+                Navigator.push(context, MaterialPageRoute(builder: (_) => const CalculatorPage()));
+              },
+            ),
+            _MobileMenuItem(
+              icon: Icons.upload_file_outlined,
+              label: 'Import Data',
+              onTap: () {
+                Navigator.pop(ctx);
+                Navigator.push(context, MaterialPageRoute(builder: (_) => const ImportPage()));
+              },
+            ),
+            _MobileMenuItem(
+              icon: Icons.smart_toy_outlined,
+              label: 'AI Advisor',
+              onTap: () {
+                Navigator.pop(ctx);
+                Navigator.push(context, MaterialPageRoute(builder: (_) => const AiChatPage()));
+              },
+            ),
+            const SizedBox(height: 16),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _MobileMenuItem extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+  const _MobileMenuItem({required this.icon, required this.label, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      leading: Icon(icon, color: AppTheme.peachAccent),
+      title: Text(label, style: const TextStyle(color: AppTheme.cream, fontSize: 16, letterSpacing: 1)),
+      onTap: onTap,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 24),
     );
   }
 }
@@ -145,3 +226,4 @@ class _NavTextRef extends StatelessWidget {
     );
   }
 }
+
