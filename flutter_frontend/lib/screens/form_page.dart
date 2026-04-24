@@ -61,7 +61,7 @@ class _FormPageState extends State<FormPage> {
           );
         }
       } else {
-        _showError('Server Error: \${response.statusCode}');
+        _showError('Server Error: ${response.statusCode}');
       }
     } catch (e) {
       _showError('Connection failed. Make sure backend is running on 8000.');

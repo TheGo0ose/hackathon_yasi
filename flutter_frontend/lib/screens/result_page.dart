@@ -76,7 +76,7 @@ class ResultPage extends StatelessWidget {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
-                            '\$score',
+                            '$score',
                             style: Theme.of(context).textTheme.displayLarge?.copyWith(
                               color: riskColor,
                             ),
@@ -103,7 +103,7 @@ class ResultPage extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Вероятность: \${(probability * 100).toStringAsFixed(2)}%',
+                  '${(probability * 100).toStringAsFixed(2)}% вероятность дефолта',
                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: AppTheme.textMuted),
                 ),
                 
