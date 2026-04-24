@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 class AppTheme {
   static const Color bg = Color(0xFF08070C);
   static const Color bg2 = Color(0xFF0D0B13);
+  static const Color surface = Color(0x08FFFFFF);
   
   static const Color peach = Color(0xFFE8A98A);
   static const Color peachLight = Color(0xFFF2C9B0);
@@ -19,7 +20,7 @@ class AppTheme {
   static ThemeData get darkTheme {
     return ThemeData(
       brightness: Brightness.dark,
-      scaffoldBackgroundColor: bg,
+      scaffoldBackgroundColor: Colors.transparent,
       primaryColor: peachAccent,
       textTheme: TextTheme(
         // Massive Titles (Next-Gen style)
@@ -58,10 +59,10 @@ class AppTheme {
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: Colors.transparent,
-        border: UnderlineInputBorder(
+        border: const UnderlineInputBorder(
           borderSide: BorderSide(color: border),
         ),
-        enabledBorder: UnderlineInputBorder(
+        enabledBorder: const UnderlineInputBorder(
           borderSide: BorderSide(color: border),
         ),
         focusedBorder: const UnderlineInputBorder(

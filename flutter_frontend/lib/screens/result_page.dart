@@ -29,7 +29,7 @@ class ResultPage extends StatelessWidget {
     }
 
     return Scaffold(
-      backgroundColor: AppTheme.bg,
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
