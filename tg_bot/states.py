@@ -1,8 +1,6 @@
 """
 Scoring FSM — step-by-step collection of 8 features in chat.
-
-Each step asks for one feature, validates the input, and moves to the next.
-After all 8 features are collected, calls the backend API and shows the result.
+Advisor FSM — free-form chat with the AI credit advisor.
 """
 
 from __future__ import annotations
@@ -21,6 +19,12 @@ class ScoringForm(StatesGroup):
     interest_rate = State()
     past_due_30d = State()
     inquiries_6m = State()
+
+
+class AdvisorChat(StatesGroup):
+    """FSM state for the AI advisor conversation."""
+
+    chatting = State()
 
 
 # Step definitions: (state, field_key, prompt, parser, validation_error_msg)

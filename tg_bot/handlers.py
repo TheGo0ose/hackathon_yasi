@@ -3,6 +3,7 @@ Handlers for the credit scoring Telegram bot.
 
 - /start → main menu
 - "Быстрый скоринг" → FSM flow (8 steps)
+- "AI-советник" → free-form chat with LLM advisor
 - "О проекте" → info
 - Cancel → back to menu
 """
@@ -13,18 +14,19 @@ import logging
 
 import httpx
 from aiogram import F, Router
-from aiogram.filters import CommandStart
+from aiogram.filters import CommandStart, StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, Message
 
 from config import BACKEND_URL
 from keyboards import (
+    advisor_keyboard,
     back_to_menu_keyboard,
     cancel_keyboard,
     main_menu_keyboard,
     score_again_keyboard,
 )
-from states import STEPS, ScoringForm
+from states import STEPS, AdvisorChat, ScoringForm
 
 logger = logging.getLogger(__name__)
 router = Router()
@@ -54,6 +56,7 @@ WELCOME_TEXT = (
     "Добро пожаловать! Я помогу оценить кредитоспособность заёмщика.\n\n"
     "• <b>Открыть скоринг</b> — веб-интерфейс с графиками\n"
     "• <b>Быстрый скоринг</b> — ответьте на 8 вопросов прямо в чате\n"
+    "• <b>AI-советник</b> — персональные финансовые рекомендации\n"
 )
 
 
@@ -78,7 +81,8 @@ ABOUT_TEXT = (
     "• Модель: L2 Logistic Regression (NumPy)\n"
     "• ROC-AUC: 0.827 на holdout-выборке\n"
     "• 8 признаков заёмщика → P(default) + FICO Score\n"
-    "• XAI: вклад каждого признака в решение\n\n"
+    "• XAI: вклад каждого признака в решение\n"
+    "• AI-советник: персональные рекомендации от ИИ\n\n"
     "Разработано на хакатоне 2026 🚀"
 )
 
@@ -115,7 +119,11 @@ async def cb_cancel(callback: CallbackQuery, state: FSMContext) -> None:
 
 
 # Universal handler for all scoring states
-@router.message(ScoringForm)
+@router.message(StateFilter(
+    ScoringForm.age, ScoringForm.monthly_income, ScoringForm.employment_years,
+    ScoringForm.loan_amount, ScoringForm.loan_term_months, ScoringForm.interest_rate,
+    ScoringForm.past_due_30d, ScoringForm.inquiries_6m,
+))
 async def handle_scoring_step(message: Message, state: FSMContext) -> None:
     """Process current step input, validate, and advance to next step or finish."""
     current_state = await state.get_state()
@@ -164,12 +172,12 @@ async def handle_scoring_step(message: Message, state: FSMContext) -> None:
         # All steps done — call the API
         await state.clear()
         await message.answer("⏳ Выполняю скоринг...")
-        await _call_scoring_api(message, data["features"])
+        await _call_scoring_api(message, state, data["features"])
 
 
 # ── API call & result formatting ─────────────────────────────
 
-async def _call_scoring_api(message: Message, features: dict) -> None:
+async def _call_scoring_api(message: Message, state: FSMContext, features: dict) -> None:
     """Call the backend scoring API and format the result."""
     try:
         async with httpx.AsyncClient(timeout=10) as client:
@@ -193,6 +201,13 @@ async def _call_scoring_api(message: Message, features: dict) -> None:
             reply_markup=back_to_menu_keyboard(),
         )
         return
+
+    # Store last scoring result in FSM data for advisor
+    await state.set_data({
+        "last_scoring_result": result,
+        "last_scoring_features": features,
+        "advisor_history": [],
+    })
 
     # Format the result
     text = _format_scoring_result(result, features)
@@ -260,3 +275,159 @@ def _format_scoring_result(result: dict, features: dict) -> str:
     )
 
     return text
+
+
+# ── AI Advisor ───────────────────────────────────────────────
+
+ADVISOR_WELCOME = (
+    "💬 <b>AI-советник по кредитам</b>\n\n"
+    "Я — ваш персональный финансовый консультант.\n"
+    "Задайте мне любой вопрос о кредитах, скоринге или финансах.\n\n"
+    "💡 <i>Совет: сначала пройдите скоринг — тогда советы будут персональными!</i>\n\n"
+    "Напишите ваш вопрос:"
+)
+
+ADVISOR_WITH_CONTEXT = (
+    "💬 <b>AI-советник по кредитам</b>\n\n"
+    "Я вижу результат вашего скоринга и могу дать персональные рекомендации.\n\n"
+    "Спросите меня, например:\n"
+    '• «Как улучшить мой кредитный скор?»\n'
+    '• «Почему мне отказали?»\n'
+    '• «Что делать с просрочками?»\n\n'
+    "Напишите ваш вопрос:"
+)
+
+
+@router.callback_query(F.data == "start_advisor")
+async def cb_start_advisor(callback: CallbackQuery, state: FSMContext) -> None:
+    """Start advisor chat — general mode (no scoring context)."""
+    data = await state.get_data()
+    has_context = "last_scoring_result" in data
+
+    await state.set_state(AdvisorChat.chatting)
+    if not has_context:
+        await state.set_data({"advisor_history": []})
+
+    text = ADVISOR_WITH_CONTEXT if has_context else ADVISOR_WELCOME
+    await callback.message.edit_text(text, reply_markup=advisor_keyboard())
+    await callback.answer()
+
+
+@router.callback_query(F.data == "advisor_after_score")
+async def cb_advisor_after_score(callback: CallbackQuery, state: FSMContext) -> None:
+    """Start advisor chat right after scoring — scoring context is available."""
+    await state.set_state(AdvisorChat.chatting)
+    await callback.message.edit_text(
+        ADVISOR_WITH_CONTEXT, reply_markup=advisor_keyboard()
+    )
+    await callback.answer()
+
+
+@router.callback_query(F.data == "exit_advisor")
+async def cb_exit_advisor(callback: CallbackQuery, state: FSMContext) -> None:
+    """Exit advisor chat and return to main menu."""
+    await state.clear()
+    await callback.message.edit_text(WELCOME_TEXT, reply_markup=main_menu_keyboard())
+    await callback.answer()
+
+
+@router.message(AdvisorChat.chatting)
+async def handle_advisor_message(message: Message, state: FSMContext) -> None:
+    """Handle a user message in the advisor chat — call backend LLM endpoint."""
+    data = await state.get_data()
+
+    # Build ML context for the advisor
+    ml_context = _build_ml_context(data)
+
+    # Get chat history
+    history = data.get("advisor_history", [])
+
+    # Show typing indicator
+    await message.answer("🤔 Анализирую...")
+
+    try:
+        async with httpx.AsyncClient(timeout=30) as client:
+            resp = await client.post(
+                f"{BACKEND_URL}/api/v1/advisor/chat",
+                json={
+                    "ml_context": ml_context,
+                    "chat_history": history,
+                    "user_message": message.text,
+                },
+            )
+            resp.raise_for_status()
+            reply = resp.json()["reply"]
+    except Exception as e:
+        logger.error("Advisor API call failed: %s", e)
+        await message.answer(
+            "❌ AI-советник временно недоступен. Попробуйте позже.",
+            reply_markup=advisor_keyboard(),
+        )
+        return
+
+    # Update history
+    history.append({"role": "user", "content": message.text})
+    history.append({"role": "assistant", "content": reply})
+
+    # Keep only last 10 messages to avoid token overflow
+    if len(history) > 20:
+        history = history[-20:]
+
+    data["advisor_history"] = history
+    await state.set_data(data)
+
+    # Send reply
+    await message.answer(
+        f"💬 <b>AI-советник:</b>\n\n{reply}",
+        reply_markup=advisor_keyboard(),
+    )
+
+
+def _build_ml_context(data: dict) -> dict:
+    """Build ML context dict from stored scoring results for the advisor."""
+    result = data.get("last_scoring_result")
+    features = data.get("last_scoring_features")
+
+    if not result:
+        return {
+            "has_scoring": False,
+            "note": "Пользователь ещё не проходил скоринг.",
+        }
+
+    # Extract top contributing features (positive = risky)
+    contributions = result.get("shap_values", {}).get("feature_contributions", {})
+    sorted_contribs = sorted(contributions.items(), key=lambda x: -x[1])
+
+    feature_labels = {
+        "age": "Возраст",
+        "monthly_income": "Ежемесячный доход",
+        "employment_years": "Стаж работы",
+        "loan_amount": "Сумма кредита",
+        "loan_term_months": "Срок кредита",
+        "interest_rate": "Процентная ставка",
+        "past_due_30d": "Просрочки 30+ дней",
+        "inquiries_6m": "Кредитные запросы за 6 мес.",
+    }
+
+    return {
+        "has_scoring": True,
+        "decision": result["decision"],
+        "probability_of_default": result["probability_of_default"],
+        "credit_score": result["credit_score"],
+        "risk_segment": result["risk_segment"]["label"],
+        "threshold": result["threshold_used"],
+        "features": {
+            feature_labels.get(k, k): v
+            for k, v in (features or {}).items()
+        },
+        "contributions": [
+            {
+                "feature": feature_labels.get(name, name),
+                "raw_feature_name": name,
+                "value": features.get(name, None) if features else None,
+                "contribution": contrib,
+                "direction": "увеличивает риск" if contrib > 0 else "снижает риск",
+            }
+            for name, contrib in sorted_contribs
+        ],
+    }

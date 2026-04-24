@@ -28,6 +28,12 @@ def main_menu_keyboard() -> InlineKeyboardMarkup:
         ],
         [
             InlineKeyboardButton(
+                text="💬 AI-советник",
+                callback_data="start_advisor",
+            ),
+        ],
+        [
+            InlineKeyboardButton(
                 text="ℹ️ О проекте",
                 callback_data="about",
             ),
@@ -55,8 +61,14 @@ def back_to_menu_keyboard() -> InlineKeyboardMarkup:
 
 
 def score_again_keyboard() -> InlineKeyboardMarkup:
-    """After scoring — score again or open Mini App."""
+    """After scoring — score again, advisor, or open Mini App."""
     buttons = [
+        [
+            InlineKeyboardButton(
+                text="💬 Спросить AI-советника",
+                callback_data="advisor_after_score",
+            ),
+        ],
         [
             InlineKeyboardButton(
                 text="🔄 Новая заявка",
@@ -77,3 +89,12 @@ def score_again_keyboard() -> InlineKeyboardMarkup:
         ],
     ]
     return InlineKeyboardMarkup(inline_keyboard=buttons)
+
+
+def advisor_keyboard() -> InlineKeyboardMarkup:
+    """During advisor chat — exit button."""
+    return InlineKeyboardMarkup(
+        inline_keyboard=[
+            [InlineKeyboardButton(text="🔙 Завершить чат", callback_data="exit_advisor")],
+        ]
+    )
