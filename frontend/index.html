@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RizzChecker - Credit Scoring</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Background Elements -->
+    <canvas id="smoke-canvas"></canvas>
+
+    <!-- Navigation -->
+    <nav>
+        <a href="#" class="nav-logo" onclick="showView('view-landing')">
+            <span class="nav-logo-text">RIZZCHECKER</span>
+        </a>
+        <div class="nav-links">
+            <a href="#" class="nav-link" onclick="showView('view-calc')">Credit Calculator</a>
+            <a href="#" class="nav-link" onclick="showView('view-import')">Import Data</a>
+            <a href="#" class="nav-link" onclick="showView('view-form')">Scoring Form</a>
+            <a href="#" class="nav-link" onclick="showView('view-chat')">AI Advisor</a>
+        </div>
+    </nav>
+
+    <main class="page">
+        <!-- VIEW 1: LANDING PAGE -->
+        <section id="view-landing" class="hero">
+            <h1 class="hero-title" style="margin-top: 40px;">Next-Gen <br><em>AI Scoring</em></h1>
+            <p style="font-family: monospace; font-size: 13px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.1em;">
+                for Unmatched Analytical Precision &<br>Human-Centered AI Experiences
+            </p>
+            <div style="margin-top: 48px;">
+                <button class="cut-corner-btn" onclick="showView('view-form')">Start Scoring</button>
+            </div>
+            <p style="margin-top: auto; font-family: monospace; font-size: 11px; color: var(--text-dim);">Almost there, stay tuned!</p>
+        </section>
+
+        <!-- VIEW 2: FORM PAGE -->
+        <section id="view-form" class="hero view-hidden">
+            <div class="cut-corner-box">
+                <form id="scoring-form">
+                    <div class="form-header-text">Hi, RizzChecker team.</div>
+                    <div style="font-family: var(--font-body); color: rgba(255,255,255,0.8); font-size: 14px; font-weight: 500; margin-bottom: 24px;">
+                        Please evaluate my credit risk profile for a loan request.
+                    </div>
+                    
+                    <div class="fields-grid">
+                        <div class="field"><label>Age</label>
+                            <input type="number" id="age" value="29" required></div>
+                        <div class="field"><label>Monthly Income</label>
+                            <input type="number" id="monthly_income" value="320000" step="1000" required></div>
+                        <div class="field"><label>Employment Years</label>
+                            <input type="number" id="employment_years" value="3.5" step="0.1" required></div>
+                        <div class="field"><label>Loan Amount</label>
+                            <input type="number" id="loan_amount" value="650000" step="1000" required></div>
+                        <div class="field"><label>Term (months)</label>
+                            <input type="number" id="loan_term_months" value="48" required></div>
+                        <div class="field"><label>Interest Rate %</label>
+                            <input type="number" id="interest_rate" value="15.0" step="0.1" required></div>
+                        <div class="field"><label>Past Due 30d+</label>
+                            <input type="number" id="past_due_30d" value="0" required></div>
+                        <div class="field"><label>Inquiries 6M</label>
+                            <input type="number" id="inquiries_6m" value="1" required></div>
+                    </div>
+                    
+                    <button type="submit" class="white-btn" id="submit-btn">Calculate Risk</button>
+                    <div id="loader" style="display: none; color: #fff; margin-top: 16px; font-style: italic;">Анализируем...</div>
+                </form>
+            </div>
+        </section>
+
+        <!-- VIEW 3: RESULT PAGE -->
+        <section id="view-result" class="hero view-hidden">
+            <div>
+                <p style="font-size: 12px; letter-spacing: 0.2em; color: var(--text-dim); text-transform: uppercase;">Наши Расчёты</p>
+                <h1 style="font-family: var(--font-body); font-size: 48px; font-weight: 800; color: var(--cream);">ПОКАЗАТЕЛЬ ДЕФОЛТА</h1>
+                
+                <div id="speedometer-wrapper">
+                    <canvas id="speedometer-canvas"></canvas>
+                    <div class="score-overlay">
+                        <div id="res-score" class="score-val">--</div>
+                        <div style="font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em;">Кредитный балл</div>
+                    </div>
+                </div>
+
+                <div id="res-risk-label" style="font-size: 20px; font-weight: 600; color: var(--peach-light); margin-top: 32px;"></div>
+                <div id="res-probability" style="font-size: 14px; color: var(--text-muted); margin-top: 8px;"></div>
+                
+                <div style="margin-top: 64px;">
+                    <button class="cut-corner-btn" onclick="showView('view-chat')">Анализ и рекомендации ИИ</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW 4: AI CHAT PAGE -->
+        <section id="view-chat" class="hero view-hidden">
+            <h2 style="font-family: var(--font-body); font-weight: 800; margin-bottom: 24px; color: var(--cream);">RIZZCHECKER ADVISOR</h2>
+            <div class="chat-container">
+                <div class="chat-history" id="chat-history">
+                    <!-- Messages go here -->
+                </div>
+                <div class="chat-input-area">
+                    <input type="text" id="chat-input" placeholder="Спросите ИИ как улучшить скоринг..." onkeypress="handleChatEnter(event)">
+                    <button class="cut-corner-btn" style="padding: 16px 32px;" onclick="sendChatMessage()">SEND</button>
+                </div>
+            </div>
+        <!-- VIEW 5: CALCULATOR PAGE -->
+        <section id="view-calc" class="hero view-hidden">
+            <div class="cut-corner-box">
+                <div class="form-header-text">Credit Calculator</div>
+                <div style="font-family: var(--font-body); color: rgba(255,255,255,0.8); font-size: 14px; margin-bottom: 24px;">
+                    Estimate your monthly payments without impacting your RizzChecker score.
+                </div>
+                <div class="fields-grid" style="grid-template-columns: repeat(3, 1fr);">
+                    <div class="field"><label>Loan Amount (₽)</label>
+                        <input type="number" id="calc_amount" value="500000" oninput="calculateCalc()"></div>
+                    <div class="field"><label>Term (Months)</label>
+                        <input type="number" id="calc_term" value="36" oninput="calculateCalc()"></div>
+                    <div class="field"><label>Interest Rate (%)</label>
+                        <input type="number" id="calc_rate" value="12.0" step="0.1" oninput="calculateCalc()"></div>
+                </div>
+                <!-- Result Display -->
+                <div style="text-align: center; margin-top: 32px;">
+                    <div style="font-family: var(--font-display); font-size: 48px; color: var(--peach-light); font-weight: 800;" id="calc-monthly-payment">16 607 ₽</div>
+                    <div style="font-family: var(--font-body); font-size: 12px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.1em;">Estimated Monthly Payment</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- VIEW 6: IMPORT DATA PAGE -->
+        <section id="view-import" class="hero view-hidden">
+            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;">
+                <h1 style="font-family: var(--font-body); font-size: 32px; font-weight: 800; color: var(--cream);">Import Existing Data</h1>
+                <p style="font-family: var(--font-body); font-size: 14px; color: var(--text-muted); max-width: 500px; text-align: center; margin-top: 16px; margin-bottom: 48px;">
+                    Connect your bank or upload your financial history. We will analyze your accumulated data securely to calculate your default probability.
+                </p>
+                <button class="cut-corner-btn" style="padding: 24px 64px; font-size: 16px;" onclick="alert('Importing data...')">SECURE IMPORT</button>
+            </div>
+        </section>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
