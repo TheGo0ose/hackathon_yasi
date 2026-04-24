@@ -1,0 +1,17 @@
+__pycache__
+*.pyc
+.git
+.gitignore
+*.md
+ai_model/
+tg_bot/
+flutter_frontend/.dart_tool/
+flutter_frontend/build/
+flutter_frontend/.flutter-plugins
+flutter_frontend/.flutter-plugins-dependencies
+flutter_frontend/android/
+flutter_frontend/ios/
+flutter_frontend/macos/
+flutter_frontend/linux/
+flutter_frontend/windows/
+flutter_frontend/test/

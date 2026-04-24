@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import '../config.dart';
 import '../theme/app_theme.dart';
 import '../widgets/cut_corners.dart';
 
@@ -25,7 +26,6 @@ class _AiChatPageState extends State<AiChatPage> {
   bool _isTyping = false;
 
   // Backend URL — same as form_page.dart
-  static const String _backendUrl = 'http://localhost:8000';
 
   @override
   void initState() {
@@ -159,7 +159,7 @@ class _AiChatPageState extends State<AiChatPage> {
 
     try {
       final response = await http.post(
-        Uri.parse('$_backendUrl/api/v1/advisor/chat'),
+        Uri.parse('$backendUrl/api/v1/advisor/chat'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'ml_context': _buildMlContext(),

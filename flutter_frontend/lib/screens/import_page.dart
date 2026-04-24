@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:csv/csv.dart';
 import 'package:http/http.dart' as http;
+import '../config.dart';
 import '../theme/app_theme.dart';
 import '../widgets/cut_corners.dart';
 
@@ -14,7 +15,7 @@ class ImportPage extends StatefulWidget {
 }
 
 class _ImportPageState extends State<ImportPage> {
-  static const String _backendUrl = 'http://localhost:8000';
+
 
   bool _isLoading = false;
   String? _fileName;
@@ -97,7 +98,7 @@ class _ImportPageState extends State<ImportPage> {
 
       // Call batch endpoint
       final response = await http.post(
-        Uri.parse('$_backendUrl/api/v1/scoring/batch'),
+        Uri.parse('$backendUrl/api/v1/scoring/batch'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(requestBodies),
       );

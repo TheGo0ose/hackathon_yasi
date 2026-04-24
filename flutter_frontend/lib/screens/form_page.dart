@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import '../config.dart';
 import '../widgets/cut_corners.dart';
 import '../theme/app_theme.dart';
 import 'result_page.dart';
@@ -45,7 +46,7 @@ class _FormPageState extends State<FormPage> {
       };
 
       final response = await http.post(
-        Uri.parse('http://localhost:8000/api/v1/scoring/predict'),
+        Uri.parse('$backendUrl/api/v1/scoring/predict'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(requestBody),
       );

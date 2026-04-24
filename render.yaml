@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: rizzchecker-api
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: USE_MOCK_SCORER
+        value: "false"
+      - key: MODEL_PATH
+        value: "app/ml_inference/models/scoring_model.json"
+      - key: DEFAULT_THRESHOLD
+        value: "0.25"
+      - key: CORS_ORIGINS
+        value: "*"
+      - key: OPENROUTER_API_KEY
+        sync: false  # set manually in Render dashboard

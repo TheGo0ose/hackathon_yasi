@@ -116,3 +116,27 @@ async def health():
 from app.api.v1.router import api_v1_router  # noqa: E402
 
 app.include_router(api_v1_router, prefix="/api/v1")
+
+
+# ── Serve Flutter web build (Mini App) ───────────────────────
+import os  # noqa: E402
+from pathlib import Path  # noqa: E402
+
+from fastapi.staticfiles import StaticFiles  # noqa: E402
+from fastapi.responses import FileResponse  # noqa: E402
+
+_FLUTTER_BUILD = Path(__file__).resolve().parent.parent.parent / "flutter_frontend" / "build" / "web"
+
+if _FLUTTER_BUILD.is_dir():
+    logger.info("Serving Flutter web from %s", _FLUTTER_BUILD)
+
+    # SPA catch-all: any non-API GET that doesn't match a static file → index.html
+    @app.get("/{full_path:path}", include_in_schema=False)
+    async def serve_spa(full_path: str):
+        file_path = _FLUTTER_BUILD / full_path
+        if full_path and file_path.is_file():
+            return FileResponse(file_path)
+        return FileResponse(_FLUTTER_BUILD / "index.html")
+else:
+    logger.warning("Flutter build not found at %s — skipping frontend", _FLUTTER_BUILD)
+
