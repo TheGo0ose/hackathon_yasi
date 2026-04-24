@@ -22,6 +22,9 @@ class Settings(BaseSettings):
     # ── B2B Dashboard ───────────────────────────────────────
     dashboard_api_key: str = "hackathon-secret-key-2026"
 
+    # ── LLM (OpenRouter) ────────────────────────────────────
+    openrouter_api_key: str = "CHANGE_ME"
+
     # ── ML Model ────────────────────────────────────────────
     use_mock_scorer: bool = True
     model_path: str = "app/ml_inference/models/model.pkl"
