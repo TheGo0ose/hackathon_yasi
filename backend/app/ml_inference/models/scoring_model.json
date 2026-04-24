@@ -1,0 +1,99 @@
+{
+  "model_type": "l2_logistic_regression_numpy",
+  "target": {
+    "positive_class": 1,
+    "positive_class_name": "default"
+  },
+  "base_feature_columns": [
+    "age",
+    "monthly_income",
+    "employment_years",
+    "loan_amount",
+    "loan_term_months",
+    "interest_rate",
+    "past_due_30d",
+    "inquiries_6m"
+  ],
+  "feature_set": "baseline_8_features",
+  "feature_columns": [
+    "age",
+    "monthly_income",
+    "employment_years",
+    "loan_amount",
+    "loan_term_months",
+    "interest_rate",
+    "past_due_30d",
+    "inquiries_6m"
+  ],
+  "coefficients": {
+    "intercept": -1.035928592092704,
+    "features": {
+      "age": 0.4759134934047064,
+      "monthly_income": -0.0567787896354648,
+      "employment_years": -0.607011401862342,
+      "loan_amount": 0.42080890059463877,
+      "loan_term_months": -0.05275714003749659,
+      "interest_rate": 0.6683748504157954,
+      "past_due_30d": 0.3542059511547175,
+      "inquiries_6m": -0.08664009970414173
+    }
+  },
+  "standardization": {
+    "mean": {
+      "age": 42.3925,
+      "monthly_income": 29708.493325000003,
+      "employment_years": 10.17875,
+      "loan_amount": 645062.511725,
+      "loan_term_months": 25.965,
+      "interest_rate": 32.1637,
+      "past_due_30d": 0.835,
+      "inquiries_6m": 1.865
+    },
+    "std": {
+      "age": 12.828228394833014,
+      "monthly_income": 10849.867409951386,
+      "employment_years": 6.927118696651588,
+      "loan_amount": 338176.270349767,
+      "loan_term_months": 15.060171811768948,
+      "interest_rate": 6.348642517105526,
+      "past_due_30d": 0.8875668988870641,
+      "inquiries_6m": 1.3790485850759573
+    }
+  },
+  "threshold": 0.25,
+  "training_params": {
+    "l2": 0.001,
+    "pos_weight": 1.0,
+    "random_seed": 42
+  },
+  "input_defaults": {
+    "age": 43.0,
+    "monthly_income": 28128.5,
+    "employment_years": 9.149999999999999,
+    "loan_amount": 619203.7749999999,
+    "loan_term_months": 24.0,
+    "interest_rate": 34.07,
+    "past_due_30d": 1.0,
+    "inquiries_6m": 2.0
+  },
+  "input_min": {
+    "age": 21.0,
+    "monthly_income": 10020.77,
+    "employment_years": 0.2,
+    "loan_amount": 54951.64,
+    "loan_term_months": 6.0,
+    "interest_rate": 10.37,
+    "past_due_30d": 0.0,
+    "inquiries_6m": 0.0
+  },
+  "input_max": {
+    "age": 65.0,
+    "monthly_income": 78180.34,
+    "employment_years": 30.6,
+    "loan_amount": 1198654.08,
+    "loan_term_months": 60.0,
+    "interest_rate": 39.0,
+    "past_due_30d": 5.0,
+    "inquiries_6m": 6.0
+  }
+}
