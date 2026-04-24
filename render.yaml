@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: rizzchecker-api
+    name: rizzchecker
     runtime: docker
     plan: free
     dockerfilePath: ./Dockerfile
@@ -14,4 +14,10 @@ services:
       - key: CORS_ORIGINS
         value: "*"
       - key: OPENROUTER_API_KEY
-        sync: false  # set manually in Render dashboard
+        sync: false
+      - key: BOT_TOKEN
+        sync: false
+      - key: BACKEND_URL
+        value: "https://rizzchecker.onrender.com"
+      - key: WEB_APP_URL
+        value: "https://rizzchecker.onrender.com"
