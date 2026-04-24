@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import '../widgets/smoke_layer.dart';
 import '../widgets/cut_corners.dart';
 import '../theme/app_theme.dart';
+import 'calculator_page.dart';
+import 'import_page.dart';
 import 'form_page.dart';
 
 class LandingPage extends StatelessWidget {
@@ -10,9 +11,8 @@ class LandingPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SmokeLayer(
-        child: Column(
-          children: [
+      body: Column(
+        children: [
             const _NavBar(),
             Expanded(
               child: Center(
@@ -75,8 +75,7 @@ class LandingPage extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
+      );
   }
 }
 
@@ -105,9 +104,13 @@ class _NavBar extends StatelessWidget {
           ),
           Row(
             children: [
-              _NavTextRef('CREDIT CALCULATOR'),
+              _NavTextRef('CREDIT CALCULATOR', onTap: () {
+                 Navigator.push(context, MaterialPageRoute(builder: (_) => const CalculatorPage()));
+              }),
               const SizedBox(width: 24),
-              _NavTextRef('IMPORT DATA', color: AppTheme.cream),
+              _NavTextRef('IMPORT DATA', color: AppTheme.cream, onTap: () {
+                 Navigator.push(context, MaterialPageRoute(builder: (_) => const ImportPage()));
+              }),
             ],
           )
         ],
@@ -119,16 +122,20 @@ class _NavBar extends StatelessWidget {
 class _NavTextRef extends StatelessWidget {
   final String text;
   final Color color;
-  const _NavTextRef(this.text, {this.color = AppTheme.textMuted});
+  final VoidCallback? onTap;
+  const _NavTextRef(this.text, {this.color = AppTheme.textMuted, this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    return Text(
-      text,
-      style: Theme.of(context).textTheme.labelLarge?.copyWith(
-        color: color,
-        fontSize: 12,
-        letterSpacing: 2.0,
+    return InkWell(
+      onTap: onTap,
+      child: Text(
+        text,
+        style: Theme.of(context).textTheme.labelLarge?.copyWith(
+          color: color,
+          fontSize: 12,
+          letterSpacing: 2.0,
+        ),
       ),
     );
   }

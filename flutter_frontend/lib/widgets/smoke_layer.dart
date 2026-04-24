@@ -15,6 +15,8 @@ class _SmokeLayerState extends State<SmokeLayer> with SingleTickerProviderStateM
   late AnimationController _controller;
   List<Particle> particles = [];
   Offset pointer = const Offset(500, 500);
+  Offset lastPointer = const Offset(500, 500);
+  double cursorSpeed = 0;
 
   @override
   void initState() {
@@ -93,11 +95,15 @@ class _SmokeLayerState extends State<SmokeLayer> with SingleTickerProviderStateM
   Widget build(BuildContext context) {
     return MouseRegion(
       onHover: (e) {
+        lastPointer = pointer;
         pointer = e.position;
+        cursorSpeed = min(sqrt(pow(pointer.dx - lastPointer.dx, 2) + pow(pointer.dy - lastPointer.dy, 2)), 100);
       },
       child: GestureDetector(
         onPanUpdate: (e) {
+          lastPointer = pointer;
           pointer = e.globalPosition;
+          cursorSpeed = min(sqrt(pow(pointer.dx - lastPointer.dx, 2) + pow(pointer.dy - lastPointer.dy, 2)), 100);
         },
         child: Stack(
           fit: StackFit.expand,
@@ -119,11 +125,17 @@ class _SmokeLayerState extends State<SmokeLayer> with SingleTickerProviderStateM
 
 class Particle {
   double x, y, vx, vy, radius, alpha;
+  double dynamicRadius = 0;
+  double dynamicAlpha = 0;
+  
   Particle({
     required this.x, required this.y, 
     required this.vx, required this.vy, 
     required this.radius, required this.alpha
-  });
+  }) {
+    dynamicRadius = radius;
+    dynamicAlpha = alpha;
+  }
 }
 
 class _SmokePainter extends CustomPainter {
@@ -138,15 +150,16 @@ class _SmokePainter extends CustomPainter {
       ..imageFilter = ui.ImageFilter.blur(sigmaX: 40, sigmaY: 40);
 
     for (var p in particles) {
+      double finalAlpha = min(p.dynamicAlpha, 0.8);
       paint.shader = ui.Gradient.radial(
         Offset(p.x, p.y),
-        p.radius,
+        p.dynamicRadius,
         [
-          const Color(0xFFFF7800).withOpacity(p.alpha), // Vibrant Orange
+          const Color(0xFFFF7800).withOpacity(finalAlpha), // Vibrant Orange
           const Color(0xFFFF7800).withOpacity(0.0),
         ],
       );
-      canvas.drawCircle(Offset(p.x, p.y), p.radius, paint);
+      canvas.drawCircle(Offset(p.x, p.y), p.dynamicRadius, paint);
     }
   }
 

@@ -19,7 +19,7 @@ class AppTheme {
   static ThemeData get darkTheme {
     return ThemeData(
       brightness: Brightness.dark,
-      scaffoldBackgroundColor: bg,
+      scaffoldBackgroundColor: Colors.transparent,
       primaryColor: peachAccent,
       textTheme: TextTheme(
         // Massive Titles (Next-Gen style)
