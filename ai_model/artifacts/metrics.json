@@ -1,0 +1,67 @@
+{
+  "model": {
+    "name": "L2 Logistic Regression",
+    "implementation": "NumPy Newton solver",
+    "feature_set": "baseline_8_features",
+    "feature_columns": [
+      "age",
+      "monthly_income",
+      "employment_years",
+      "loan_amount",
+      "loan_term_months",
+      "interest_rate",
+      "past_due_30d",
+      "inquiries_6m"
+    ],
+    "l2": 0.001,
+    "pos_weight": 1.0
+  },
+  "split": {
+    "random_seed": 42,
+    "train_size": 400,
+    "holdout_size": 100,
+    "target_rate_train": 0.305,
+    "target_rate_holdout": 0.3
+  },
+  "quality_holdout": {
+    "roc_auc": 0.8266666666666667,
+    "pr_auc": 0.6362542936422443,
+    "accuracy_at_selected_threshold": 0.71,
+    "accuracy_at_0_50": 0.76
+  },
+  "threshold": {
+    "selected_threshold": 0.25,
+    "selection_rule": "validation: максимальная доля одобрений при bad-rate среди одобренных <= 11%",
+    "selected_threshold_metrics_holdout": {
+      "threshold": 0.25,
+      "accuracy": 0.71,
+      "approval_rate": 0.47,
+      "decline_rate": 0.53,
+      "default_rate_approved": 0.06382978723404255,
+      "recall_default": 0.9,
+      "precision_default": 0.5094339622641509,
+      "tn": 44,
+      "fp": 26,
+      "fn": 3,
+      "tp": 27
+    },
+    "threshold_0_50_metrics_holdout": {
+      "threshold": 0.5,
+      "accuracy": 0.76,
+      "approval_rate": 0.82,
+      "decline_rate": 0.18000000000000005,
+      "default_rate_approved": 0.21951219512195122,
+      "recall_default": 0.4,
+      "precision_default": 0.6666666666666666,
+      "tn": 64,
+      "fp": 6,
+      "fn": 18,
+      "tp": 12
+    }
+  },
+  "notes": [
+    "Решение использует P(default). Клиент считается default, если P(default) >= threshold.",
+    "Более низкий threshold уменьшает риск среди одобренных, но снижает долю одобрений.",
+    "Метрики рассчитаны на holdout-выборке 20%; из-за 500 строк значения могут быть нестабильны."
+  ]
+}

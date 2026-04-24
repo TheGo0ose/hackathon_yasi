@@ -1,0 +1,11 @@
+field,type,description
+credit_id,integer,Уникальный идентификатор кредитной заявки. Не используется как признак модели.
+age,integer,"Возраст заемщика, лет."
+monthly_income,float,Ежемесячный доход заемщика.
+employment_years,float,"Стаж работы заемщика, лет."
+loan_amount,float,Запрошенная сумма кредита.
+loan_term_months,integer,"Срок кредита, месяцев."
+interest_rate,float,"Процентная ставка по кредиту, %."
+past_due_30d,integer,Количество просрочек 30+ дней в прошлом.
+inquiries_6m,integer,Количество кредитных запросов за последние 6 месяцев.
+target,integer,"Целевая переменная: 1 = default / плохой заемщик, 0 = non-default / хороший заемщик."
