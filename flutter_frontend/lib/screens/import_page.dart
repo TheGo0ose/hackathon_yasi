@@ -291,7 +291,7 @@ class _ImportPageState extends State<ImportPage> {
             DataColumn(label: Text('Risk', style: TextStyle(color: AppTheme.textDim))),
             DataColumn(label: Text('Decision', style: TextStyle(color: AppTheme.textDim))),
           ],
-          rows: _results.take(100).map((r) {
+          rows: _results.map((r) {
             final isApproved = r['decision'] == 'APPROVED';
             return DataRow(cells: [
               DataCell(Text('${r['index']}', style: const TextStyle(color: AppTheme.cream))),
