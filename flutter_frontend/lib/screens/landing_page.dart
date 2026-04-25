@@ -4,6 +4,7 @@ import '../theme/app_theme.dart';
 import 'calculator_page.dart';
 import 'import_page.dart';
 import 'form_page.dart';
+import 'ai_chat_page.dart';
 
 class LandingPage extends StatelessWidget {
   const LandingPage({super.key});
@@ -91,7 +92,7 @@ class _NavBar extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(Icons.blur_linear, color: AppTheme.cream, size: 28),
+              const Icon(Icons.blur_linear, color: AppTheme.cream, size: 28),
               const SizedBox(width: 12),
               Text(
                 'RIZZCHECKER',
@@ -108,8 +109,12 @@ class _NavBar extends StatelessWidget {
                  Navigator.push(context, MaterialPageRoute(builder: (_) => const CalculatorPage()));
               }),
               const SizedBox(width: 24),
-              _NavTextRef('IMPORT DATA', color: AppTheme.cream, onTap: () {
+              _NavTextRef('IMPORT DATA', onTap: () {
                  Navigator.push(context, MaterialPageRoute(builder: (_) => const ImportPage()));
+              }),
+              const SizedBox(width: 24),
+              _NavTextRef('AI ADVISOR', color: AppTheme.cream, onTap: () {
+                 Navigator.push(context, MaterialPageRoute(builder: (_) => const AiChatPage()));
               }),
             ],
           )
