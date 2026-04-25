@@ -3,13 +3,13 @@ import '../theme/app_theme.dart';
 import '../widgets/cut_corners.dart';
 
 class AiChatPage extends StatefulWidget {
-  final Map<String, dynamic> resultData;
-  final Map<String, dynamic> requestData;
+  final Map<String, dynamic>? resultData;
+  final Map<String, dynamic>? requestData;
 
   const AiChatPage({
     super.key,
-    required this.resultData,
-    required this.requestData,
+    this.resultData,
+    this.requestData,
   });
 
   @override
@@ -28,7 +28,17 @@ class _AiChatPageState extends State<AiChatPage> {
   }
 
   void _analyzeData() {
-    final shap = widget.resultData['shap_values']['feature_contributions'] as Map<String, dynamic>;
+    if (widget.resultData == null || widget.resultData!['shap_values'] == null) {
+      setState(() {
+        _messages.add({
+          'role': 'ai',
+          'text': "Привет! Вы пока не заполняли форму скоринга. Можете задавать мне общие вопросы об улучшении кредитного потенциала.",
+        });
+      });
+      return;
+    }
+
+    final shap = widget.resultData!['shap_values']['feature_contributions'] as Map<String, dynamic>;
     
     // Sort to find biggest negative impacts (increasing default risk)
     var entries = shap.entries.toList();
@@ -73,10 +83,10 @@ class _AiChatPageState extends State<AiChatPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppTheme.bg,
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
         title: Text('RIZZCHECKER ADVISOR', style: Theme.of(context).textTheme.labelLarge),
-        backgroundColor: AppTheme.bg2,
+        backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,
       ),
@@ -118,7 +128,7 @@ class _AiChatPageState extends State<AiChatPage> {
                     decoration: InputDecoration(
                       hintText: 'Как мне снизить ставку?',
                       border: OutlineInputBorder(borderSide: BorderSide(color: AppTheme.peachAccent.withOpacity(0.5))),
-                      enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: AppTheme.border)),
+                      enabledBorder: const OutlineInputBorder(borderSide: BorderSide(color: AppTheme.border)),
                       focusedBorder: const OutlineInputBorder(borderSide: BorderSide(color: AppTheme.peachAccent)),
                     ),
                     onSubmitted: (_) => _sendMessage(),
