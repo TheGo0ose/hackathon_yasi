@@ -1,5 +1,5 @@
 """
-Credit Scoring Telegram Bot — entry point.
+RizzScoreAI Telegram Bot — entry point.
 
 Run:
     python bot.py
@@ -29,7 +29,7 @@ logger = logging.getLogger(__name__)
 
 
 async def main() -> None:
-    logger.info("Starting Credit Scoring Bot...")
+    logger.info("Starting RizzScoreAI Bot...")
 
     bot = Bot(
         token=BOT_TOKEN,
