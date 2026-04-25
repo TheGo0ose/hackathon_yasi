@@ -16,7 +16,7 @@ import httpx
 from aiogram import F, Router
 from aiogram.filters import CommandStart, StateFilter
 from aiogram.fsm.context import FSMContext
-from aiogram.types import CallbackQuery, Message, ContentType
+from aiogram.types import CallbackQuery, Message
 
 from config import BACKEND_URL
 from keyboards import (
@@ -57,8 +57,8 @@ WELCOME_TEXT = (
     "Оценю кредитоспособность за секунды и дам персональные советы.\n\n"
     "🌐 <b>Открыть скоринг</b> — полный веб-интерфейс с аналитикой\n"
     "📊 <b>Быстрый скоринг</b> — 8 вопросов прямо в чате\n"
-    "🎤 <b>Голосовой скоринг</b> — просто расскажи о себе голосом\n"
     "🤖 <b>AI-советник</b> — персональные финансовые рекомендации\n"
+    "📥 <b>Импорт CSV</b> — пакетный скоринг через сайт\n"
 )
 
 
@@ -435,86 +435,3 @@ def _build_ml_context(data: dict) -> dict:
             for name, contrib in sorted_contribs
         ],
     }
-
-
-# ── Voice scoring ────────────────────────────────────────────
-
-_FEATURE_LABELS_RU = {
-    "age": "Возраст",
-    "monthly_income": "Доход",
-    "employment_years": "Стаж",
-    "loan_amount": "Сумма кредита",
-    "loan_term_months": "Срок (мес.)",
-    "interest_rate": "Ставка (%)",
-    "past_due_30d": "Просрочки",
-    "inquiries_6m": "Запросы (6 мес.)",
-}
-
-
-@router.message(F.voice)
-async def handle_voice(message: Message, state: FSMContext) -> None:
-    """Handle voice messages — extract features via Gemini and score."""
-    await message.answer("🎤 Обрабатываю голосовое сообщение...")
-
-    try:
-        # 1. Download voice file from Telegram
-        voice = message.voice
-        file = await message.bot.get_file(voice.file_id)
-        from io import BytesIO
-        voice_bytes = BytesIO()
-        await message.bot.download_file(file.file_path, voice_bytes)
-        voice_bytes.seek(0)
-
-        # 2. Send to backend /api/v1/scoring/voice
-        async with httpx.AsyncClient(timeout=30) as client:
-            resp = await client.post(
-                f"{BACKEND_URL}/api/v1/scoring/voice",
-                files={"audio": ("voice.ogg", voice_bytes.read(), "audio/ogg")},
-            )
-
-        if resp.status_code == 422:
-            error_detail = resp.json().get("detail", "Не удалось распознать данные")
-            await message.answer(
-                f"⚠️ {error_detail}\n\n"
-                "Попробуйте сказать чётче, например:\n"
-                "«Мне 28 лет, зарплата 80 тысяч, работаю 3 года, "
-                "хочу кредит 500 тысяч на 2 года»",
-                reply_markup=back_to_menu_keyboard(),
-            )
-            return
-
-        resp.raise_for_status()
-        result = resp.json()
-
-    except Exception as e:
-        logger.error("Voice scoring error: %s", e)
-        await message.answer(
-            "❌ Ошибка обработки голоса. Попробуйте ещё раз или используйте текстовый скоринг.",
-            reply_markup=back_to_menu_keyboard(),
-        )
-        return
-
-    # 3. Format extracted features
-    extracted = result.get("extracted_features", {})
-    features_text = "\n".join(
-        f"  • {_FEATURE_LABELS_RU.get(k, k)}: <b>{v}</b>"
-        for k, v in extracted.items()
-        if k in _FEATURE_LABELS_RU
-    )
-
-    header = (
-        "🎤 <b>Голосовой скоринг</b>\n\n"
-        "📋 Распознанные данные:\n"
-        f"{features_text}\n\n"
-    )
-
-    # 4. Format scoring result (reuse existing formatter)
-    scoring_text = _format_scoring_result(result, extracted)
-
-    await state.set_data({
-        "last_scoring_result": result,
-        "last_scoring_features": extracted,
-        "advisor_history": [],
-    })
-
-    await message.answer(header + scoring_text, reply_markup=score_again_keyboard())
