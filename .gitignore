@@ -1,0 +1,35 @@
+# Environment files (secrets)
+.env
+*.env
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+
+# Flutter
+flutter_frontend/.dart_tool/
+flutter_frontend/build/
+flutter_frontend/.flutter-plugins
+flutter_frontend/.flutter-plugins-dependencies
+flutter_frontend/.packages
+flutter_frontend/android/
+flutter_frontend/ios/
+flutter_frontend/macos/
+flutter_frontend/linux/
+flutter_frontend/windows/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
